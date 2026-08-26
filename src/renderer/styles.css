@@ -1,0 +1,118 @@
+:root {
+  color-scheme: light;
+  --toolbar-bg: #f3f3f3;
+  --border: #c8c8c8;
+  --text: #222;
+  --accent: #2b6cb0;
+  --splitter: #d4d4d4;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  color: var(--text);
+  background: #fff;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+#toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+select,
+button {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+#split {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+#split.flipped {
+  flex-direction: row-reverse;
+}
+
+.pane {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+}
+
+#pane-search {
+  flex: 0 0 50%;
+}
+
+#pane-chat {
+  flex: 1 1 auto;
+}
+
+webview {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+#splitter {
+  flex: 0 0 6px;
+  cursor: col-resize;
+  background: var(--splitter);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+#splitter:hover,
+#splitter.dragging {
+  background: var(--accent);
+}
+
+#status {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: var(--toolbar-bg);
+  border-top: 1px solid var(--border);
+  color: #333;
+}
+
+body.resizing,
+body.resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}

@@ -1,0 +1,56 @@
+I want you to develop a cross-platform desktop app based on the Electron platform that has the following use cases:
+
+1. Launch App
+	a. User launched the app
+	b. He sees the application user interface:
+		i. A  main application window with a split interface - with an embedded web-browser on the left hand side called "Search Engine", and an embedded web-browser on the right hand side called "AI Chat", divided by a splitter which can be dragged left and right changing the width of the web-browsers.
+		ii. A toolbar with controls at the top of the application main window:
+			1) A drop-down "Search Engine" with the list of web-search engines, with Google selected by default.
+			2) A drop-down "AI Chat" with the list of AI-chat names, with Deep Seek selected by default.
+			3) "Flip Browsers" button.
+			4) "Search Query >> AI Chat" button.
+			5) "SERP Links >> AI Chat" button.
+		iii. A status bar at the bottom of the app window with the text: "Click a link > add it to AI Chat. Ctrl+Click > open in the external web browser."
+2. Choose Search Engine
+	a. User clicked on the "Search Engine" drop-down.
+	b. User sees the list of search engines:
+			i. Google
+			ii. Bing
+			iii. Yandex
+	c. User has chosen a search engine from the list.
+	d. The use case "3. Open Search Engine" has been executed.
+3. Open Search Engine
+	a. Prerequisites: user has launched the app as described in the use case "1. Launch App" or user has chosen the Search engine from the list of the drop-down as described in the use case "2. Choose Search Engine".
+	b. The "Search Engine" web-browser is navigated to the chosen search engine web-address.
+4. Choose AI Chat
+	a. User clicked on the "AI Chat" drop-down.
+	b. User sees the list of AI chat providers:
+		i. Deep Seek
+		ii. Perplexity
+		iii. Open AI
+	c. User has chosen a AI chat provider from the list.
+	d. The use case "5. Open AI Chat" has been executed.
+5. Open AI Chat
+	a. Prerequisites: user has launched the app as described in the use case "1. Launch App" or user has chosen the AI chat provider from the list of the drop-down as described in the use case "4. Choose AI Chat".
+	b. The "AI Chat" web-browser is navigated to a chat URL of the chosen AI chat provider, like "https://chat.deepseek.com".
+6. Extract SERP Link to AI Chat
+	a. Prerequisites: user has made a web search request in the web search engine in the Search Engine browser, and sees a SERP.
+	b. User has clicked a search result link in the Search Engine browser - a link in the list of web search results or any web-search engine's redirect link masking a native external link, not a link to open the next SERP page, or any other link in the Search Engine's interface.
+	c. The browser's navigation is intercepted and cancelled. User has stayed on the SERP.
+	d. The clicked link is parsed to extract the native URL of the target web page.
+		i. If parsing out native link is impossible then the link is opened in the background via a system network call in order to resolve the native link from the internet.
+	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the following source:\n[Source Page Title (taken from SERP)] [native URL]\n".
+7. Open Link In External Browser
+	a. User clicked any link in the Search Engine web browser while having his Ctrl button pressed.
+	b. It is opened in the operating system's default external web browser.
+8. SERP Links To AI Chat
+	a. Prerequisites: user has made a web search request in the web search engine in the Search Engine browser, and sees a SERP.
+	b. User clicked "SERP Links >> AI Chat" button.
+	c. The use case "6. Extract SERP Link to AI Chat" is executed for each link in the SERP.
+9. Extract Search Query To AI Chat
+	a. Prerequisites: user has made a web search request in the web search engine in the Search Engine browser, and sees a SERP.
+	b. User clicked "Search Query >> AI Chat" button.
+	c. The text of the search query is extracted from the search query text of the opened web search engine in the Search Engine browser and appended into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "My message to you is: {search query text}\n".
+10. Flip Browsers
+	a. User clicked "Flip Browsers" button.
+	b. Search Engine browser and AI Chat browser exchange places.

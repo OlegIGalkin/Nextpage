@@ -1,0 +1,26 @@
+{
+  "name": "serp-ai-chat",
+  "productName": "SERP AI Chat",
+  "version": "1.0.0",
+  "description": "Split-pane search engine and AI chat desktop app",
+  "main": "./out/main/main.js",
+  "author": "SERP AI Chat",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-vite dev",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "test": "vitest run",
+    "icon": "node scripts/generate-icon.mjs",
+    "dist": "npm run icon && npm run build && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.2.4"
+  }
+}
