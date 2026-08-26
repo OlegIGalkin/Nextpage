@@ -60,6 +60,7 @@ function setupSplitter(): void {
   })
   window.addEventListener('mousemove', onMove)
   window.addEventListener('mouseup', stopDrag)
+  window.addEventListener('blur', stopDrag)
 }
 
 function setupFlip(): void {

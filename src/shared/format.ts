@@ -6,5 +6,5 @@ export function formatSourceBlock(title: string, url: string): string {
 export function formatQueryMessage(query: string): string {
   const safeQuery = query.replace(/\s+/g, ' ').trim()
   if (!safeQuery) return ''
-  return `My message to you is: ${safeQuery}\n`
+  return `\nMy message to you is: ${safeQuery}\n`
 }

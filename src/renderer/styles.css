@@ -116,3 +116,7 @@ body.resizing * {
   cursor: col-resize !important;
   user-select: none;
 }
+
+body.resizing webview {
+  pointer-events: none;
+}
