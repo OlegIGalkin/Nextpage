@@ -13,7 +13,11 @@
     "preview": "electron-vite preview",
     "test": "vitest run",
     "icon": "node scripts/generate-icon.mjs",
-    "dist": "npm run icon && npm run build && electron-builder --win nsis"
+    "dist": "npm run dist:win",
+    "dist:win": "npm run icon && npm run build && electron-builder --win nsis",
+    "dist:mac": "npm run icon && npm run build && electron-builder --mac",
+    "dist:linux": "npm run icon && npm run build && electron-builder --linux",
+    "dist:all": "npm run icon && npm run build && electron-builder --win --mac --linux"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

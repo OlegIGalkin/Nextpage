@@ -35,7 +35,7 @@ Redirect URLs from the search engine are resolved to the real page URL before th
 ## Requirements
 
 - Node.js (current LTS is fine)
-- Windows for the packaged installer (`electron-builder` is set up for NSIS). You can still run from source on other platforms with Electron.
+- The matching OS (or CI) for packaged installers: Windows for NSIS, macOS for DMG/zip, Linux for AppImage/deb. You can still run from source on any platform with Electron.
 
 ## Run from source
 
@@ -47,13 +47,17 @@ npm start
 
 `npm start` and `npm run dev` both launch Electron in development mode.
 
-## Windows installer
+## Packaged installers
+
+Each command generates the app icon, compiles TypeScript, and writes artifacts under `dist/`. Run the Mac and Linux scripts on those OSes (or in CI); `dist:mac` cannot produce a DMG from Windows.
 
 ```bash
-npm run dist
+npm run dist        # same as dist:win — NSIS installer
+npm run dist:win
+npm run dist:mac    # DMG + zip (arm64 and x64)
+npm run dist:linux  # AppImage + deb
+npm run dist:all    # all three platforms (fails for targets the host cannot build)
 ```
-
-That generates the app icon, compiles TypeScript, and builds an NSIS installer under `dist/`.
 
 ## Limitations
 

@@ -17,6 +17,25 @@ win:
   target:
     - nsis
   signExecutable: false
+mac:
+  icon: build/icon.png
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+linux:
+  icon: build/icon.png
+  category: Utility
+  maintainer: Nextpage
+  target:
+    - AppImage
+    - deb
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
