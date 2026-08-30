@@ -1,8 +1,8 @@
 import { detectSearchEngine } from '../shared/search-hosts'
 import { analyzeBing, isBingSerp } from './bing'
 import { analyzeGoogle, isGoogleSerp } from './google'
-import type { LinkAnalysis, SerpLink } from './types'
-import { normalizeTitle } from './types'
+import type { LinkAnalysis, SerpLink, SourceDetails } from './types'
+import { normalizeTitle, NOT_RESULT } from './types'
 import { analyzeYandex, isYandexSerp } from './yandex'
 
 function hrefOf(anchor: HTMLAnchorElement): string {
@@ -18,7 +18,7 @@ function isIgnorableHref(href: string): boolean {
 export function analyzeLink(anchor: HTMLAnchorElement): LinkAnalysis {
   const href = hrefOf(anchor)
   if (isIgnorableHref(href)) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
   const engine = detectSearchEngine(location.hostname)
@@ -30,7 +30,7 @@ export function analyzeLink(anchor: HTMLAnchorElement): LinkAnalysis {
     case 'yandex':
       return analyzeYandex(anchor)
     default:
-      return { kind: 'other', title: '' }
+      return NOT_RESULT
   }
 }
 
@@ -52,7 +52,7 @@ export function extractAllResults(): SerpLink[] {
     const href = hrefOf(node)
     if (!href || seen.has(href)) continue
     seen.add(href)
-    results.push({ href, title: analysis.title })
+    results.push({ href, title: analysis.title, snippet: analysis.snippet })
   }
   return results
 }
@@ -74,18 +74,20 @@ export function extractQuery(): string {
   return params.get('q') || params.get('text') || params.get('query') || ''
 }
 
-export function titleForHref(href: string): string {
+export function sourceForHref(href: string): SourceDetails {
   for (const node of Array.from(document.querySelectorAll('a'))) {
     if (!(node instanceof HTMLAnchorElement)) continue
     if (node.href !== href) continue
     const analysis = analyzeLink(node)
-    if (analysis.title) return analysis.title
+    if (analysis.kind === 'result') {
+      return { title: analysis.title, snippet: analysis.snippet }
+    }
     const text = normalizeTitle(node.textContent)
-    if (text) return text
+    if (text) return { title: text, snippet: analysis.snippet }
   }
   try {
-    return new URL(href).hostname
+    return { title: new URL(href).hostname, snippet: '' }
   } catch {
-    return href
+    return { title: href, snippet: '' }
   }
 }

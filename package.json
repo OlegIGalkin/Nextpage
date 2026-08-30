@@ -1,10 +1,10 @@
 {
-  "name": "serp-ai-chat",
-  "productName": "SERP AI Chat",
+  "name": "nextpage",
+  "productName": "Nextpage",
   "version": "1.0.0",
   "description": "Split-pane search engine and AI chat desktop app",
   "main": "./out/main/main.js",
-  "author": "SERP AI Chat",
+  "author": "Nextpage",
   "license": "MIT",
   "scripts": {
     "start": "electron-vite dev",

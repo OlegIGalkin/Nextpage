@@ -34,7 +34,7 @@ function createWindow(): void {
     height: 900,
     minWidth: 900,
     minHeight: 600,
-    title: 'SERP AI Chat',
+    title: 'Nextpage',
     backgroundColor: '#f3f3f3',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

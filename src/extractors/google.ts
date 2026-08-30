@@ -1,5 +1,7 @@
 import type { LinkAnalysis } from './types'
-import { normalizeTitle } from './types'
+import { firstNormalizedText, normalizeTitle, NOT_RESULT } from './types'
+
+const SNIPPET_SELECTORS = ['.VwiC3b', '.IsZvec', '.aCOpRe', '[data-sncf]', '.s3WFgc']
 
 function isChrome(anchor: HTMLAnchorElement): boolean {
   return !!(
@@ -18,23 +20,31 @@ function isPagination(anchor: HTMLAnchorElement): boolean {
   return false
 }
 
+function resultCard(anchor: HTMLAnchorElement): Element | null {
+  return anchor.closest('.g') || anchor.closest('.MjjYud') || anchor.closest('[data-hveid]')
+}
+
 export function analyzeGoogle(anchor: HTMLAnchorElement): LinkAnalysis {
   if (isChrome(anchor) || isPagination(anchor)) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
   if (!anchor.closest('#search, #rso, #center_col, #main, #res')) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
   if (anchor.closest('#tads, #tadsb, #bottomads, .cu-container, [data-text-ad]')) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
   const h3 = anchor.querySelector('h3')
   if (!h3) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
-  return { kind: 'result', title: normalizeTitle(h3.textContent) || 'Source' }
+  return {
+    kind: 'result',
+    title: normalizeTitle(h3.textContent) || 'Source',
+    snippet: firstNormalizedText(resultCard(anchor), SNIPPET_SELECTORS)
+  }
 }
 
 export function isGoogleSerp(): boolean {

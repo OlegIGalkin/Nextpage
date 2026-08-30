@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>SERP AI Chat</title>
+    <title>Nextpage</title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
@@ -23,6 +23,10 @@
         <button type="button" id="query-to-chat">Search Query &gt;&gt; AI Chat</button>
         <button type="button" id="links-to-chat">SERP Links &gt;&gt; AI Chat</button>
         <button type="button" id="flip">Flip Browsers</button>
+        <label class="toolbar-field">
+          LLM Language
+          <select id="llm-language" aria-label="LLM Language"></select>
+        </label>
       </header>
       <div id="split">
         <div class="pane" id="pane-search">

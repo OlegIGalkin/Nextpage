@@ -1,6 +1,15 @@
 import { isRedirectPath } from '../shared/search-hosts'
 import type { LinkAnalysis } from './types'
-import { normalizeTitle } from './types'
+import { firstNormalizedText, normalizeTitle, NOT_RESULT } from './types'
+
+const SNIPPET_SELECTORS = [
+  '.OrganicTextContentSpan',
+  '.OrganicText',
+  '.Organic-Text',
+  '.organic__text',
+  '.text-container',
+  '.TextContainer'
+]
 
 function isChrome(anchor: HTMLAnchorElement): boolean {
   return !!anchor.closest(
@@ -10,12 +19,12 @@ function isChrome(anchor: HTMLAnchorElement): boolean {
 
 export function analyzeYandex(anchor: HTMLAnchorElement): LinkAnalysis {
   if (isChrome(anchor)) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
   const card = anchor.closest('.serp-item, .Organic, .organic, .serp-list__item, [class*="serp-item"]')
   if (!card) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
   const titleLink = card.querySelector(
@@ -34,13 +43,17 @@ export function analyzeYandex(anchor: HTMLAnchorElement): LinkAnalysis {
   const isRedirectWrapper = isRedirectPath(pathname)
 
   if (!isTitle && !(isRedirectWrapper && anchor.closest('.OrganicTitle, .organic__title, h2, h3'))) {
-    return { kind: 'other', title: '' }
+    return NOT_RESULT
   }
 
   const title = normalizeTitle(
     card.querySelector('h2, h3, .OrganicTitle, .organic__title')?.textContent || anchor.textContent
   )
-  return { kind: 'result', title: title || 'Source' }
+  return {
+    kind: 'result',
+    title: title || 'Source',
+    snippet: firstNormalizedText(card, SNIPPET_SELECTORS)
+  }
 }
 
 export function isYandexSerp(): boolean {

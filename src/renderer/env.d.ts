@@ -48,6 +48,7 @@ declare global {
   interface SerpLink {
     href: string
     title: string
+    snippet: string
   }
 
   interface Window {

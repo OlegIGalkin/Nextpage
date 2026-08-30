@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import { analyzeLink, extractAllResults, extractQuery, isSerpPage, titleForHref } from '../extractors'
+import { analyzeLink, extractAllResults, extractQuery, isSerpPage, sourceForHref } from '../extractors'
 
 function hrefOf(anchor: HTMLAnchorElement): string {
   return anchor.href || anchor.getAttribute('href') || ''
@@ -38,7 +38,7 @@ function onClick(event: MouseEvent): void {
 
   event.preventDefault()
   event.stopImmediatePropagation()
-  ipcRenderer.sendToHost('serp-link', { href, title: analysis.title })
+  ipcRenderer.sendToHost('serp-link', { href, title: analysis.title, snippet: analysis.snippet })
 }
 
 function attach(): void {
@@ -59,6 +59,6 @@ ipcRenderer.on('extract-query', (_event, requestId: string) => {
   ipcRenderer.sendToHost('extract-query-ok', requestId, extractQuery())
 })
 
-ipcRenderer.on('title-for-href', (_event, requestId: string, href: string) => {
-  ipcRenderer.sendToHost('title-for-href-ok', requestId, titleForHref(href))
+ipcRenderer.on('source-for-href', (_event, requestId: string, href: string) => {
+  ipcRenderer.sendToHost('source-for-href-ok', requestId, sourceForHref(href))
 })

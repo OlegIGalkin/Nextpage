@@ -7,9 +7,10 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 		ii. A toolbar with controls at the top of the application main window:
 			1) A drop-down "Search Engine" with the list of web-search engines, with Google selected by default.
 			2) A drop-down "AI Chat" with the list of AI-chat names, with Deep Seek selected by default.
-			3) "Flip Browsers" button.
-			4) "Search Query >> AI Chat" button.
-			5) "SERP Links >> AI Chat" button.
+			3) "Search Query >> AI Chat" button.
+			4) "SERP Links >> AI Chat" button.
+			5) "Flip Browsers" button.
+			6) "LLM Language" drop down with the list of languages for LLM messages, with English selected by default. 
 		iii. A status bar at the bottom of the app window with the text: "Click a link > add it to AI Chat. Ctrl+Click > open in the external web browser."
 2. Choose Search Engine
 	a. User clicked on the "Search Engine" drop-down.
@@ -39,7 +40,7 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 	c. The browser's navigation is intercepted and cancelled. User has stayed on the SERP.
 	d. The clicked link is parsed to extract the native URL of the target web page.
 		i. If parsing out native link is impossible then the link is opened in the background via a system network call in order to resolve the native link from the internet.
-	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the following source:\n[Source Page Title (taken from SERP)] [native URL]\n".
+	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the following source: {native URL}\nSource Title: \"{title from SERP}\"\nSource Snippet: \"{snippet from SERP}\"\n".
 7. Open Link In External Browser
 	a. User clicked any link in the Search Engine web browser while having his Ctrl button pressed.
 	b. It is opened in the operating system's default external web browser.
@@ -54,3 +55,8 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 10. Flip Browsers
 	a. User clicked "Flip Browsers" button.
 	b. Search Engine browser and AI Chat browser exchange places.
+11. Change LLM Language
+	a. User clicked "LLM Language" drop down.
+	b. He sees the list of languages.
+	c. He selected a language from the list.
+	d. The app writes format strings in messages in the selected language.   

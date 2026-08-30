@@ -1,5 +1,5 @@
-appId: com.serpaichat.app
-productName: SERP AI Chat
+appId: com.nextpage.app
+productName: Nextpage
 directories:
   output: dist
   buildResources: build
@@ -19,4 +19,4 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: SERP AI Chat
+  shortcutName: Nextpage

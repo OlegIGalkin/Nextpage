@@ -1,8 +1,10 @@
 import { formatQueryMessage, formatSourceBlock } from '../shared/format'
+import { DEFAULT_LLM_LANGUAGE, LLM_LANGUAGES } from '../shared/languages'
 import { AI_CHATS, DEFAULT_AI_CHAT, DEFAULT_SEARCH_ENGINE, SEARCH_ENGINES } from '../shared/providers'
 
 const searchSelect = document.querySelector('#search-engine') as HTMLSelectElement
 const chatSelect = document.querySelector('#ai-chat') as HTMLSelectElement
+const languageSelect = document.querySelector('#llm-language') as HTMLSelectElement
 const flipButton = document.querySelector('#flip') as HTMLButtonElement
 const queryButton = document.querySelector('#query-to-chat') as HTMLButtonElement
 const linksButton = document.querySelector('#links-to-chat') as HTMLButtonElement
@@ -30,6 +32,17 @@ function populateSelects(): void {
     if (chat.id === DEFAULT_AI_CHAT.id) option.selected = true
     chatSelect.append(option)
   }
+  for (const language of LLM_LANGUAGES) {
+    const option = document.createElement('option')
+    option.value = language.id
+    option.textContent = language.name
+    if (language.id === DEFAULT_LLM_LANGUAGE.id) option.selected = true
+    languageSelect.append(option)
+  }
+}
+
+function selectedLanguage(): string {
+  return languageSelect.value || DEFAULT_LLM_LANGUAGE.id
 }
 
 function setupSplitter(): void {
@@ -110,10 +123,10 @@ async function insertIntoChat(text: string): Promise<void> {
   }
 }
 
-async function ingestLink(title: string, href: string): Promise<void> {
+async function ingestLink(title: string, snippet: string, href: string): Promise<void> {
   if (!href || !shouldIngest(`${title}|${href}`)) return
   const native = await window.api.resolveUrl(href)
-  await insertIntoChat(formatSourceBlock(title, native))
+  await insertIntoChat(formatSourceBlock(title, snippet, native, selectedLanguage()))
 }
 
 function titleFromUrl(url: string): string {
@@ -132,9 +145,9 @@ function setupWebviewBridge(): void {
       return
     }
     if (event.channel === 'serp-link') {
-      const payload = event.args[0] as { href?: string; title?: string } | undefined
+      const payload = event.args[0] as { href?: string; title?: string; snippet?: string } | undefined
       if (payload?.href) {
-        void ingestLink(payload.title || titleFromUrl(payload.href), payload.href)
+        void ingestLink(payload.title || titleFromUrl(payload.href), payload.snippet || '', payload.href)
       }
     }
   })
@@ -142,12 +155,15 @@ function setupWebviewBridge(): void {
   window.api.onSearchNavigationBlocked((url) => {
     void (async () => {
       let title = titleFromUrl(url)
+      let snippet = ''
       try {
-        title = (await invokeGuest<string>(searchView, 'title-for-href', url)) || title
+        const source = await invokeGuest<{ title?: string; snippet?: string }>(searchView, 'source-for-href', url)
+        title = source?.title || title
+        snippet = source?.snippet || ''
       } catch {
         // Guest page may not be ready; fall back to hostname.
       }
-      await ingestLink(title, url)
+      await ingestLink(title, snippet, url)
     })()
   })
 }
@@ -168,7 +184,7 @@ function setupToolbarActions(): void {
     void (async () => {
       try {
         const query = await invokeGuest<string>(searchView, 'extract-query')
-        if (query) await insertIntoChat(formatQueryMessage(query))
+        if (query) await insertIntoChat(formatQueryMessage(query, selectedLanguage()))
       } catch (error) {
         console.error('Failed to extract search query', error)
       }
@@ -185,7 +201,7 @@ function setupToolbarActions(): void {
           const native = await window.api.resolveUrl(link.href)
           const key = `${link.title}|${native}`
           if (!shouldIngest(key)) continue
-          blocks.push(formatSourceBlock(link.title, native))
+          blocks.push(formatSourceBlock(link.title, link.snippet || '', native, selectedLanguage()))
         }
         await insertIntoChat(blocks.join(''))
       } catch (error) {
