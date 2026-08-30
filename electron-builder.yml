@@ -9,6 +9,9 @@ files:
 asar: true
 asarUnpack:
   - out/preload/**/*
+extraResources:
+  - from: LICENSE
+    to: LICENSE
 win:
   icon: build/icon.png
   target:
