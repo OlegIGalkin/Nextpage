@@ -10,11 +10,15 @@ const queryButton = document.querySelector('#query-to-chat') as HTMLButtonElemen
 const linksButton = document.querySelector('#links-to-chat') as HTMLButtonElement
 const split = document.querySelector('#split') as HTMLElement
 const splitter = document.querySelector('#splitter') as HTMLElement
+const foldLeftButton = document.querySelector('#fold-left') as HTMLButtonElement
+const foldRightButton = document.querySelector('#fold-right') as HTMLButtonElement
 const searchPane = document.querySelector('#pane-search') as HTMLElement
 const searchView = document.querySelector('#search-webview') as WebviewTag
 const chatView = document.querySelector('#chat-webview') as WebviewTag
 
 let flipped = false
+let folded: 'left' | 'right' | null = null
+let savedSearchFlex = ''
 let lastIngest = { key: '', at: 0 }
 
 function populateSelects(): void {
@@ -49,7 +53,7 @@ function setupSplitter(): void {
   let dragging = false
 
   const onMove = (event: MouseEvent): void => {
-    if (!dragging) return
+    if (!dragging || folded) return
     const rect = split.getBoundingClientRect()
     if (rect.width <= 0) return
     const visualRatio = (event.clientX - rect.left) / rect.width
@@ -66,6 +70,8 @@ function setupSplitter(): void {
   }
 
   splitter.addEventListener('mousedown', (event) => {
+    if (folded) return
+    if ((event.target as HTMLElement).closest('.fold-btn')) return
     event.preventDefault()
     dragging = true
     splitter.classList.add('dragging')
@@ -74,6 +80,45 @@ function setupSplitter(): void {
   window.addEventListener('mousemove', onMove)
   window.addEventListener('mouseup', stopDrag)
   window.addEventListener('blur', stopDrag)
+}
+
+function applyFoldUi(): void {
+  split.classList.toggle('folded-left', folded === 'left')
+  split.classList.toggle('folded-right', folded === 'right')
+  foldLeftButton.textContent = folded === 'left' ? '▶' : '◀'
+  foldRightButton.textContent = folded === 'right' ? '◀' : '▶'
+  foldLeftButton.setAttribute('aria-label', folded === 'left' ? 'Unfold left panel' : 'Fold left panel')
+  foldRightButton.setAttribute('aria-label', folded === 'right' ? 'Unfold right panel' : 'Fold right panel')
+  splitter.setAttribute('aria-label', folded ? 'Unfold pane' : 'Resize panes')
+  searchPane.style.flex = folded ? '1 1 auto' : savedSearchFlex
+}
+
+function foldSide(side: 'left' | 'right'): void {
+  if (folded === side) {
+    folded = null
+    applyFoldUi()
+    return
+  }
+  if (folded !== null) return
+  savedSearchFlex = searchPane.style.flex || '0 0 50%'
+  folded = side
+  applyFoldUi()
+}
+
+function setupFold(): void {
+  const stopDragStart = (event: MouseEvent): void => {
+    event.stopPropagation()
+  }
+  foldLeftButton.addEventListener('mousedown', stopDragStart)
+  foldRightButton.addEventListener('mousedown', stopDragStart)
+  foldLeftButton.addEventListener('click', (event) => {
+    event.stopPropagation()
+    foldSide('left')
+  })
+  foldRightButton.addEventListener('click', (event) => {
+    event.stopPropagation()
+    foldSide('right')
+  })
 }
 
 function setupFlip(): void {
@@ -215,6 +260,7 @@ async function start(): Promise<void> {
   const config = await window.api.getConfig()
   populateSelects()
   setupSplitter()
+  setupFold()
   setupFlip()
   setupProviderNavigation()
   setupToolbarActions()

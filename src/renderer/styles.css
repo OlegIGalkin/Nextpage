@@ -81,6 +81,20 @@ button {
   flex: 1 1 auto;
 }
 
+#split.folded-left:not(.flipped) #pane-search,
+#split.folded-left.flipped #pane-chat,
+#split.folded-right:not(.flipped) #pane-chat,
+#split.folded-right.flipped #pane-search {
+  display: none;
+}
+
+#split.folded-left #pane-search,
+#split.folded-left #pane-chat,
+#split.folded-right #pane-search,
+#split.folded-right #pane-chat {
+  flex: 1 1 auto;
+}
+
 webview {
   display: flex;
   flex: 1;
@@ -90,16 +104,57 @@ webview {
 }
 
 #splitter {
-  flex: 0 0 6px;
+  flex: 0 0 18px;
   cursor: col-resize;
   background: var(--splitter);
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  z-index: 1;
+}
+
+#split.folded-left #splitter,
+#split.folded-right #splitter {
+  cursor: default;
 }
 
 #splitter:hover,
 #splitter.dragging {
   background: var(--accent);
+}
+
+.fold-btn {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.fold-btn:hover {
+  color: #fff;
+  background: #1a4f86;
+}
+
+#splitter:hover .fold-btn,
+#splitter.dragging .fold-btn {
+  color: #fff;
+}
+
+#split.folded-left #fold-right,
+#split.folded-right #fold-left {
+  display: none;
 }
 
 #status {

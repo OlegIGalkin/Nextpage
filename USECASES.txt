@@ -3,7 +3,7 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 1. Launch App
 	a. User launched the app
 	b. He sees the application user interface:
-		i. A  main application window with a split interface - with an embedded web-browser on the left hand side called "Search Engine", and an embedded web-browser on the right hand side called "AI Chat", divided by a splitter which can be dragged left and right changing the width of the web-browsers.
+		i. A  main application window with a split interface - with an embedded web-browser on the left hand side called "Search Engine", and an embedded web-browser on the right hand side called "AI Chat", divided by a splitter which can be dragged left and right changing the width of the web-browsers. Both web-browsers are unfolded by default. The splitter has a fold-left chevron and a fold-right chevron.
 		ii. A toolbar with controls at the top of the application main window:
 			1) A drop-down "Search Engine" with the list of web-search engines, with Google selected by default.
 			2) A drop-down "AI Chat" with the list of AI-chat names, with Deep Seek selected by default.
@@ -55,8 +55,25 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 10. Flip Browsers
 	a. User clicked "Flip Browsers" button.
 	b. Search Engine browser and AI Chat browser exchange places.
+	c. If a panel is folded as described in the use cases "12. Fold Left Panel" or "14. Fold Right Panel", Flip still swaps Search Engine and AI Chat; the folded screen edge stays folded (visual left or right, not a named browser).
 11. Change LLM Language
 	a. User clicked "LLM Language" drop down.
 	b. He sees the list of languages.
 	c. He selected a language from the list.
-	d. The app writes format strings in messages in the selected language.   
+	d. The app writes format strings in messages in the selected language.
+12. Fold Left Panel
+	a. Prerequisites: both panels are unfolded as after the use case "1. Launch App" or after the use case "13. Unfold Left Panel" or "15. Unfold Right Panel".
+	b. User clicked the fold-left chevron on the splitter.
+	c. The left-hand web-browser is hidden. The right-hand web-browser fills the split area. The splitter sits on the left edge with an unfold-left control. The fold-right control is not shown - both panels cannot be folded at once. Splitter drag is disabled.
+13. Unfold Left Panel
+	a. Prerequisites: the left panel is folded as described in the use case "12. Fold Left Panel".
+	b. User clicked the unfold-left chevron on the splitter.
+	c. Both web-browsers are visible again at the previous splitter width.
+14. Fold Right Panel
+	a. Prerequisites: both panels are unfolded as after the use case "1. Launch App" or after the use case "13. Unfold Left Panel" or "15. Unfold Right Panel".
+	b. User clicked the fold-right chevron on the splitter.
+	c. The right-hand web-browser is hidden. The left-hand web-browser fills the split area. The splitter sits on the right edge with an unfold-right control. The fold-left control is not shown - both panels cannot be folded at once. Splitter drag is disabled.
+15. Unfold Right Panel
+	a. Prerequisites: the right panel is folded as described in the use case "14. Fold Right Panel".
+	b. User clicked the unfold-right chevron on the splitter.
+	c. Both web-browsers are visible again at the previous splitter width.

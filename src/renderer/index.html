@@ -36,7 +36,10 @@
             webpreferences="contextIsolation=yes, nodeIntegration=no"
           ></webview>
         </div>
-        <div id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize panes"></div>
+        <div id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize panes">
+          <button type="button" class="fold-btn" id="fold-left" aria-label="Fold left panel">◀</button>
+          <button type="button" class="fold-btn" id="fold-right" aria-label="Fold right panel">▶</button>
+        </div>
         <div class="pane" id="pane-chat">
           <webview
             id="chat-webview"
