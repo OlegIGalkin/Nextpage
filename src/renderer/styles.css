@@ -55,6 +55,13 @@ button {
   cursor: pointer;
 }
 
+#query-to-chat,
+#links-to-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 #split {
   flex: 1 1 auto;
   display: flex;
