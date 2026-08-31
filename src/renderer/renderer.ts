@@ -8,6 +8,8 @@ const languageSelect = document.querySelector('#llm-language') as HTMLSelectElem
 const flipButton = document.querySelector('#flip') as HTMLButtonElement
 const queryButton = document.querySelector('#query-to-chat') as HTMLButtonElement
 const linksButton = document.querySelector('#links-to-chat') as HTMLButtonElement
+const splitterQueryButton = document.querySelector('#splitter-query-to-chat') as HTMLButtonElement
+const splitterLinksButton = document.querySelector('#splitter-links-to-chat') as HTMLButtonElement
 const split = document.querySelector('#split') as HTMLElement
 const splitter = document.querySelector('#splitter') as HTMLElement
 const foldLeftButton = document.querySelector('#fold-left') as HTMLButtonElement
@@ -71,7 +73,7 @@ function setupSplitter(): void {
 
   splitter.addEventListener('mousedown', (event) => {
     if (folded) return
-    if ((event.target as HTMLElement).closest('.fold-btn')) return
+    if ((event.target as HTMLElement).closest('.splitter-btn')) return
     event.preventDefault()
     dragging = true
     splitter.classList.add('dragging')
@@ -109,8 +111,9 @@ function setupFold(): void {
   const stopDragStart = (event: MouseEvent): void => {
     event.stopPropagation()
   }
-  foldLeftButton.addEventListener('mousedown', stopDragStart)
-  foldRightButton.addEventListener('mousedown', stopDragStart)
+  for (const button of splitter.querySelectorAll('.splitter-btn')) {
+    button.addEventListener('mousedown', stopDragStart)
+  }
   foldLeftButton.addEventListener('click', (event) => {
     event.stopPropagation()
     foldSide('left')
@@ -253,6 +256,15 @@ function setupToolbarActions(): void {
         console.error('Failed to extract SERP links', error)
       }
     })()
+  })
+
+  splitterQueryButton.addEventListener('click', (event) => {
+    event.stopPropagation()
+    queryButton.click()
+  })
+  splitterLinksButton.addEventListener('click', (event) => {
+    event.stopPropagation()
+    linksButton.click()
   })
 }
 

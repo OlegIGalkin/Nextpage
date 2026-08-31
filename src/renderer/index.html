@@ -37,8 +37,12 @@
           ></webview>
         </div>
         <div id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize panes">
-          <button type="button" class="fold-btn" id="fold-left" aria-label="Fold left panel">◀</button>
-          <button type="button" class="fold-btn" id="fold-right" aria-label="Fold right panel">▶</button>
+          <div class="splitter-actions">
+            <button type="button" class="splitter-btn" id="splitter-query-to-chat" aria-label="Search Query >> AI Chat" title="Search Query >> AI Chat">🔍</button>
+            <button type="button" class="splitter-btn" id="splitter-links-to-chat" aria-label="SERP Links >> AI Chat" title="SERP Links >> AI Chat">🔗</button>
+          </div>
+          <button type="button" class="splitter-btn fold-btn" id="fold-left" aria-label="Fold left panel">◀</button>
+          <button type="button" class="splitter-btn fold-btn" id="fold-right" aria-label="Fold right panel">▶</button>
         </div>
         <div class="pane" id="pane-chat">
           <webview
