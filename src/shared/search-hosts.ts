@@ -23,6 +23,8 @@ export function isRedirectPath(pathname: string): boolean {
   return (
     path === '/url' ||
     path.startsWith('/url/') ||
+    path === '/goto' ||
+    path.startsWith('/goto/') ||
     path.includes('/ck/a') ||
     path.includes('/clck') ||
     path.includes('jsredir') ||

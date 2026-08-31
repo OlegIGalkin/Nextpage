@@ -32,6 +32,17 @@ describe('parseRedirectUrl', () => {
   it('returns null for a native URL', () => {
     expect(parseRedirectUrl('https://example.com/already-native')).toBeNull()
   })
+
+  it('returns null for an opaque Google /goto token', () => {
+    const href =
+      'https://www.google.com/goto?url=CAESpgEB6zswFYiyg-aeciYsbBj-X67mAzBnQNo2HKJ2iI25eIwWuOTdAw5d1d9SwH1lH5QhZ1J1hgCnF1AHwQtdMiwZALksArOzrgYvpm3iNxKo5pnyOIzhUkwlyX-jRTe6uCRDn2Z9w1wvNkfx4ppAwZmSLsVOkIgyw4EsUBlhFu5TRXuyZCxydFT2erQn0H_Lh35vxRPof5GoHmVOgVVrTRLSctGg8dGU'
+    expect(parseRedirectUrl(href)).toBeNull()
+  })
+
+  it('parses Google /goto when url= is a plaintext HTTP URL', () => {
+    const href = 'https://www.google.com/goto?url=https%3A%2F%2Fexample.com%2Fpage'
+    expect(parseRedirectUrl(href)).toBe('https://example.com/page')
+  })
 })
 
 describe('needsNetworkResolve', () => {
@@ -47,6 +58,12 @@ describe('needsNetworkResolve', () => {
 
   it('is false for ordinary result URLs', () => {
     expect(needsNetworkResolve('https://example.com/article')).toBe(false)
+  })
+
+  it('is true for an opaque Google /goto redirect', () => {
+    expect(
+      needsNetworkResolve('https://www.google.com/goto?url=CAESpgEB6zswFYiyg-aeciYsbBj')
+    ).toBe(true)
   })
 })
 
@@ -68,7 +85,25 @@ describe('resolveNativeUrl', () => {
     await expect(resolveNativeUrl('https://yandex.com/clck/jsredir?etext=opaque')).resolves.toBe(
       'https://example.org/resolved'
     )
-    expect(fetchSpy).toHaveBeenCalled()
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy.mock.calls[0]?.[1]).toMatchObject({ method: 'GET', redirect: 'manual' })
+    fetchSpy.mockRestore()
+  })
+
+  it('resolves opaque Google /goto via GET Location without HEAD', async () => {
+    const goto =
+      'https://www.google.com/goto?url=CAESpgEB6zswFYiyg-aeciYsbBj-X67mAzBnQNo2HKJ2iI25eIwWuOTdAw5d1d9SwH1lH5QhZ1J1hgCnF1AHwQtdMiwZALksArOzrgYvpm3iNxKo5pnyOIzhUkwlyX-jRTe6uCRDn2Z9w1wvNkfx4ppAwZmSLsVOkIgyw4EsUBlhFu5TRXuyZCxydFT2erQn0H_Lh35vxRPof5GoHmVOgVVrTRLSctGg8dGU'
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      status: 302,
+      url: goto,
+      headers: { get: (name: string) => (name.toLowerCase() === 'location' ? 'https://example.com/article' : null) },
+      body: { cancel: vi.fn() }
+    } as unknown as Response)
+
+    await expect(resolveNativeUrl(goto)).resolves.toBe('https://example.com/article')
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy.mock.calls[0]?.[0]).toBe(goto)
+    expect(fetchSpy.mock.calls[0]?.[1]).toMatchObject({ method: 'GET', redirect: 'manual' })
     fetchSpy.mockRestore()
   })
 
@@ -76,6 +111,22 @@ describe('resolveNativeUrl', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
     await expect(resolveNativeUrl('https://example.com/native')).resolves.toBe('https://example.com/native')
     expect(fetchSpy).not.toHaveBeenCalled()
+    fetchSpy.mockRestore()
+  })
+
+  it('network-resolves when /url wraps an opaque Google /goto', async () => {
+    const goto = 'https://www.google.com/goto?url=CAESopaqueToken'
+    const outer = `https://www.google.com/url?url=${encodeURIComponent(goto)}`
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      status: 302,
+      url: goto,
+      headers: { get: (name: string) => (name.toLowerCase() === 'location' ? 'https://example.com/real' : null) },
+      body: { cancel: vi.fn() }
+    } as unknown as Response)
+
+    await expect(resolveNativeUrl(outer)).resolves.toBe('https://example.com/real')
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(fetchSpy.mock.calls[0]?.[0]).toBe(goto)
     fetchSpy.mockRestore()
   })
 })

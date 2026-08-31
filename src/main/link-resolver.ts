@@ -1,6 +1,11 @@
 import { isRedirectPath, isSearchEngineHost } from '../shared/search-hosts'
 
 const RESOLVE_TIMEOUT_MS = 8000
+const MAX_REDIRECT_HOPS = 5
+const RESOLVE_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+
+export type ResolveFetch = (input: string, init?: RequestInit) => Promise<Response>
 
 function looksLikeHttpUrl(value: string): boolean {
   try {
@@ -44,9 +49,20 @@ function safeDecode(value: string): string {
   }
 }
 
+function isGoogleRedirectPath(pathname: string): boolean {
+  const path = pathname.toLowerCase()
+  return (
+    path.startsWith('/url') ||
+    path.startsWith('/aclk') ||
+    path.startsWith('/imgres') ||
+    path === '/goto' ||
+    path.startsWith('/goto/')
+  )
+}
+
 function parseGoogleRedirect(url: URL): string | null {
   if (!isSearchEngineHost(url.hostname)) return null
-  if (!url.pathname.startsWith('/url') && !url.pathname.startsWith('/aclk') && !url.pathname.startsWith('/imgres')) {
+  if (!isGoogleRedirectPath(url.pathname)) {
     return null
   }
   return firstHttpParam(url.searchParams, ['url', 'q', 'imgurl'])
@@ -113,56 +129,78 @@ export function needsNetworkResolve(href: string): boolean {
   }
 }
 
-async function followRedirects(href: string): Promise<string> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), RESOLVE_TIMEOUT_MS)
-  try {
-    const head = await fetch(href, {
-      method: 'HEAD',
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-      }
-    })
-    if (head.url) {
-      return head.url
-    }
-  } catch {
-    // Some hosts reject HEAD; try a GET and drop the body.
-  } finally {
-    clearTimeout(timer)
-  }
+function isRedirectStatus(status: number): boolean {
+  return status >= 300 && status < 400
+}
 
-  const getController = new AbortController()
-  const getTimer = setTimeout(() => getController.abort(), RESOLVE_TIMEOUT_MS)
+function resolveLocation(current: string, location: string): string | null {
   try {
-    const response = await fetch(href, {
-      method: 'GET',
-      redirect: 'follow',
-      signal: getController.signal,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-      }
-    })
-    await response.body?.cancel()
-    return response.url || href
+    return new URL(location, current).href
   } catch {
-    return href
-  } finally {
-    clearTimeout(getTimer)
+    return null
   }
 }
 
-export async function resolveNativeUrl(href: string): Promise<string> {
-  const parsed = parseRedirectUrl(href)
-  if (parsed) {
-    return parsed
+function nativeFromCandidate(candidate: string, fallback: string): string {
+  return parseRedirectUrl(candidate) || candidate || fallback
+}
+
+async function followRedirects(href: string, fetchFn: ResolveFetch): Promise<string> {
+  let current = href
+  for (let hop = 0; hop < MAX_REDIRECT_HOPS; hop++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), RESOLVE_TIMEOUT_MS)
+    try {
+      const response = await fetchFn(current, {
+        method: 'GET',
+        redirect: 'manual',
+        signal: controller.signal,
+        headers: { 'User-Agent': RESOLVE_USER_AGENT }
+      })
+      await response.body?.cancel()
+
+      if (isRedirectStatus(response.status)) {
+        const location = response.headers.get('location')
+        if (!location) {
+          return nativeFromCandidate(response.url || current, current)
+        }
+        const next = resolveLocation(current, location)
+        if (!next) {
+          return current
+        }
+        const parsed = parseRedirectUrl(next)
+        if (parsed && !needsNetworkResolve(parsed)) {
+          return parsed
+        }
+        current = parsed || next
+        if (!needsNetworkResolve(current)) {
+          return current
+        }
+        continue
+      }
+
+      if (response.url && response.url !== current) {
+        return nativeFromCandidate(response.url, current)
+      }
+      return current
+    } catch {
+      return current
+    } finally {
+      clearTimeout(timer)
+    }
   }
-  if (needsNetworkResolve(href)) {
-    return followRedirects(href)
+  return current
+}
+
+export async function resolveNativeUrl(href: string, fetchFn: ResolveFetch = fetch): Promise<string> {
+  let current = parseRedirectUrl(href) || href
+  if (needsNetworkResolve(current)) {
+    current = await followRedirects(current, fetchFn)
+    const parsed = parseRedirectUrl(current)
+    if (parsed && !needsNetworkResolve(parsed)) {
+      return parsed
+    }
+    current = parsed || current
   }
-  return href
+  return current
 }

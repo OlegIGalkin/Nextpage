@@ -1,7 +1,12 @@
 import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { resolveNativeUrl } from './link-resolver'
+import { needsNetworkResolve, resolveNativeUrl } from './link-resolver'
+import {
+  createNetRedirectFetch,
+  resolveByGuestNavigation,
+  searchPartitionReferer
+} from './session-redirect-fetch'
 import { CHAT_PARTITION, IPC, SEARCH_PARTITION } from '../shared/ipc'
 import { isChatProviderUrl, isIdentityProviderUrl } from '../shared/oauth-hosts'
 import { isInternalSearchNavigation } from '../shared/search-hosts'
@@ -66,7 +71,15 @@ function registerIpc(): void {
 
   ipcMain.handle(IPC.resolveUrl, async (_event, href: string) => {
     if (typeof href !== 'string') return href
-    return resolveNativeUrl(href)
+    const searchSession = session.fromPartition(SEARCH_PARTITION)
+    const userAgent = CHROME_UA()
+    const referer = searchPartitionReferer(searchSession)
+    const fetchFn = createNetRedirectFetch(searchSession, { userAgent, referer })
+    let resolved = await resolveNativeUrl(href, fetchFn)
+    if (needsNetworkResolve(resolved)) {
+      resolved = await resolveByGuestNavigation(SEARCH_PARTITION, resolved, userAgent, referer)
+    }
+    return resolved
   })
 
   ipcMain.handle(IPC.openExternal, async (_event, url: string) => {
