@@ -31,8 +31,8 @@ Redirect URLs from the search engine are resolved to the real page URL before th
 - Not a new model and not a hosted search API.
 - Not “search for me”: the chat does not choose what to read; you keep the result list open and choose.
 - Not a button inside ChatGPT. It is a desktop window with two real webviews.
-- Not a web browser extension for SERP link extraction.
-- Not a web browser extension for a web page summarization.
+- Not a web browser extension for SERP links extraction.
+- Not a web browser extension for web pages summarization.
 
 ## Requirements
 
