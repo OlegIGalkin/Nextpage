@@ -21,7 +21,7 @@ Toolbar:
 | **AI Chat** | Deep Seek (default), Perplexity, or ChatGPT |
 | **Search Query >> AI Chat** | Pastes the current query into the chat input |
 | **SERP Links >> AI Chat** | Appends every result on the current results page |
-| **Flip Browsers** | Swaps the two panes |
+| **Flip Panes** | Swaps the two panes |
 | **LLM Language** | Language of the injected source/query text (English by default) |
 
 Redirect URLs from the search engine are resolved to the real page URL before they are inserted.
@@ -31,6 +31,8 @@ Redirect URLs from the search engine are resolved to the real page URL before th
 - Not a new model and not a hosted search API.
 - Not “search for me”: the chat does not choose what to read; you keep the result list open and choose.
 - Not a button inside ChatGPT. It is a desktop window with two real webviews.
+- Not a web browser extension for SERP link extraction.
+- Not a web browser extension for a web page summarization.
 
 ## Requirements
 
