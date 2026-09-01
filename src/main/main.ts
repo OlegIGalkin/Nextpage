@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, clipboard, ipcMain, Menu, session, shell } from 'electron'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { needsNetworkResolve, resolveNativeUrl } from './link-resolver'
@@ -100,6 +100,78 @@ function isHttpUrl(url: string): boolean {
   return /^https?:\/\//i.test(url)
 }
 
+function attachGuestContextMenu(contents: Electron.WebContents): void {
+  contents.on('context-menu', (_event, params) => {
+    if (contents.isDestroyed()) return
+
+    const template: Electron.MenuItemConstructorOptions[] = []
+    const linkUrl = params.linkURL && isHttpUrl(params.linkURL) ? params.linkURL : ''
+
+    if (linkUrl) {
+      template.push(
+        {
+          label: 'Open link in browser',
+          click: () => {
+            void shell.openExternal(linkUrl)
+          }
+        },
+        {
+          label: 'Copy link',
+          click: () => clipboard.writeText(linkUrl)
+        },
+        { type: 'separator' }
+      )
+    }
+
+    const { editFlags } = params
+    template.push(
+      { role: 'undo', enabled: editFlags.canUndo },
+      { role: 'redo', enabled: editFlags.canRedo },
+      { type: 'separator' },
+      { role: 'cut', enabled: editFlags.canCut },
+      { role: 'copy', enabled: editFlags.canCopy },
+      { role: 'paste', enabled: editFlags.canPaste },
+      { role: 'selectAll', enabled: editFlags.canSelectAll },
+      { type: 'separator' },
+      {
+        label: 'Back',
+        enabled: contents.navigationHistory.canGoBack(),
+        click: () => {
+          if (!contents.isDestroyed()) contents.navigationHistory.goBack()
+        }
+      },
+      {
+        label: 'Forward',
+        enabled: contents.navigationHistory.canGoForward(),
+        click: () => {
+          if (!contents.isDestroyed()) contents.navigationHistory.goForward()
+        }
+      },
+      {
+        label: 'Reload',
+        click: () => {
+          if (!contents.isDestroyed()) contents.reload()
+        }
+      }
+    )
+
+    if (!app.isPackaged) {
+      template.push(
+        { type: 'separator' },
+        {
+          label: 'Inspect',
+          click: () => {
+            if (!contents.isDestroyed()) contents.inspectElement(params.x, params.y)
+          }
+        }
+      )
+    }
+
+    const window = BrowserWindow.fromWebContents(contents) ?? mainWindow ?? undefined
+    Menu.buildFromTemplate(template).popup({ window })
+  })
+}
+
 function chatPopupWindowOptions(): Electron.BrowserWindowConstructorOptions {
   return {
     parent: mainWindow ?? undefined,
@@ -172,6 +244,7 @@ function openChatOAuthWindow(url: string, opener: Electron.WebContents): void {
 }
 
 function configureChatPopup(contents: Electron.WebContents): void {
+  attachGuestContextMenu(contents)
   contents.setWindowOpenHandler((details) => {
     if (!isHttpUrl(details.url)) {
       return { action: 'deny' }
@@ -190,6 +263,8 @@ function registerWebviewHandlers(): void {
     if (contents.getType() !== 'webview') {
       return
     }
+
+    attachGuestContextMenu(contents)
 
     contents.setWindowOpenHandler(({ url }) => {
       if (isSearchWebContents(contents)) {

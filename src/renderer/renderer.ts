@@ -72,6 +72,7 @@ function setupSplitter(): void {
   }
 
   splitter.addEventListener('mousedown', (event) => {
+    if (event.button !== 0) return
     if (folded) return
     if ((event.target as HTMLElement).closest('.splitter-btn')) return
     event.preventDefault()
