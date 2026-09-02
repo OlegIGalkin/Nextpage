@@ -44,6 +44,31 @@ describe('formatSourceBlock', () => {
       '\nUse the source: https://example.com\nSource Title: "Example Page"\nSource Snippet: "Hello"\n'
     )
   })
+
+  it('omits the title line when includeTitle is false', () => {
+    expect(
+      formatSourceBlock('Example Page', 'A short description', 'https://example.com', undefined, {
+        includeTitle: false
+      })
+    ).toBe('\nUse the source: https://example.com\nSource Snippet: "A short description"\n')
+  })
+
+  it('omits the snippet line when includeSnippet is false', () => {
+    expect(
+      formatSourceBlock('Example Page', 'A short description', 'https://example.com', undefined, {
+        includeSnippet: false
+      })
+    ).toBe('\nUse the source: https://example.com\nSource Title: "Example Page"\n')
+  })
+
+  it('omits title and snippet lines when both flags are false', () => {
+    expect(
+      formatSourceBlock('Example Page', 'A short description', 'https://example.com', undefined, {
+        includeTitle: false,
+        includeSnippet: false
+      })
+    ).toBe('\nUse the source: https://example.com\n')
+  })
 })
 
 describe('formatQueryMessage', () => {

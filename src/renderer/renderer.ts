@@ -5,6 +5,8 @@ import { AI_CHATS, DEFAULT_AI_CHAT, DEFAULT_SEARCH_ENGINE, SEARCH_ENGINES } from
 const searchSelect = document.querySelector('#search-engine') as HTMLSelectElement
 const chatSelect = document.querySelector('#ai-chat') as HTMLSelectElement
 const languageSelect = document.querySelector('#llm-language') as HTMLSelectElement
+const extractTitleToggle = document.querySelector('#extract-title') as HTMLInputElement
+const extractSnippetToggle = document.querySelector('#extract-snippet') as HTMLInputElement
 const flipButton = document.querySelector('#flip') as HTMLButtonElement
 const queryButton = document.querySelector('#query-to-chat') as HTMLButtonElement
 const linksButton = document.querySelector('#links-to-chat') as HTMLButtonElement
@@ -49,6 +51,33 @@ function populateSelects(): void {
 
 function selectedLanguage(): string {
   return languageSelect.value || DEFAULT_LLM_LANGUAGE.id
+}
+
+const EXTRACT_TITLE_KEY = 'extractSourceTitle'
+const EXTRACT_SNIPPET_KEY = 'extractSourceSnippet'
+
+function readStoredFlag(key: string, fallback: boolean): boolean {
+  const stored = localStorage.getItem(key)
+  if (stored === null) return fallback
+  return stored === 'true'
+}
+
+function sourceFormatOptions(): { includeTitle: boolean; includeSnippet: boolean } {
+  return {
+    includeTitle: extractTitleToggle.checked,
+    includeSnippet: extractSnippetToggle.checked
+  }
+}
+
+function setupExtractToggles(): void {
+  extractTitleToggle.checked = readStoredFlag(EXTRACT_TITLE_KEY, true)
+  extractSnippetToggle.checked = readStoredFlag(EXTRACT_SNIPPET_KEY, true)
+  extractTitleToggle.addEventListener('change', () => {
+    localStorage.setItem(EXTRACT_TITLE_KEY, String(extractTitleToggle.checked))
+  })
+  extractSnippetToggle.addEventListener('change', () => {
+    localStorage.setItem(EXTRACT_SNIPPET_KEY, String(extractSnippetToggle.checked))
+  })
 }
 
 function setupSplitter(): void {
@@ -220,7 +249,7 @@ async function insertIntoChat(text: string): Promise<void> {
 async function ingestLink(title: string, snippet: string, href: string): Promise<void> {
   if (!href || !shouldIngest(`${title}|${href}`)) return
   const native = await window.api.resolveUrl(href)
-  await insertIntoChat(formatSourceBlock(title, snippet, native, selectedLanguage()))
+  await insertIntoChat(formatSourceBlock(title, snippet, native, selectedLanguage(), sourceFormatOptions()))
 }
 
 function titleFromUrl(url: string): string {
@@ -295,7 +324,9 @@ function setupToolbarActions(): void {
           const native = await window.api.resolveUrl(link.href)
           const key = `${link.title}|${native}`
           if (!shouldIngest(key)) continue
-          blocks.push(formatSourceBlock(link.title, link.snippet || '', native, selectedLanguage()))
+          blocks.push(
+            formatSourceBlock(link.title, link.snippet || '', native, selectedLanguage(), sourceFormatOptions())
+          )
         }
         await insertIntoChat(blocks.join(''))
       } catch (error) {
@@ -317,6 +348,7 @@ function setupToolbarActions(): void {
 async function start(): Promise<void> {
   const config = await window.api.getConfig()
   populateSelects()
+  setupExtractToggles()
   setupSplitter()
   setupFold()
   setupFlip()

@@ -169,12 +169,26 @@ function templatesFor(languageId?: string): MessageTemplates {
   return (languageId && TEMPLATES[languageId]) || ENGLISH
 }
 
-export function formatSourceBlock(title: string, snippet: string, url: string, languageId?: string): string {
+export function formatSourceBlock(
+  title: string,
+  snippet: string,
+  url: string,
+  languageId?: string,
+  options?: { includeTitle?: boolean; includeSnippet?: boolean }
+): string {
   const t = templatesFor(languageId)
-  const safeTitle = title.replace(/\s+/g, ' ').trim() || t.sourceFallback
-  const safeSnippet = snippet.replace(/\s+/g, ' ').trim()
-  const snippetLine = safeSnippet ? `${t.sourceSnippet}: "${safeSnippet}"\n` : ''
-  return `\n${t.useSource}: ${url}\n${t.sourceTitle}: "${safeTitle}"\n${snippetLine}`
+  const includeTitle = options?.includeTitle !== false
+  const includeSnippet = options?.includeSnippet !== false
+  const lines = [`\n${t.useSource}: ${url}`]
+  if (includeTitle) {
+    const safeTitle = title.replace(/\s+/g, ' ').trim() || t.sourceFallback
+    lines.push(`${t.sourceTitle}: "${safeTitle}"`)
+  }
+  if (includeSnippet) {
+    const safeSnippet = snippet.replace(/\s+/g, ' ').trim()
+    if (safeSnippet) lines.push(`${t.sourceSnippet}: "${safeSnippet}"`)
+  }
+  return `${lines.join('\n')}\n`
 }
 
 export function formatQueryMessage(query: string, languageId?: string): string {

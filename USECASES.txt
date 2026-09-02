@@ -10,7 +10,9 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 			3) "Search Query >> AI Chat" button.
 			4) "SERP Links >> AI Chat" button.
 			5) "Flip Browsers" button.
-			6) "LLM Language" drop down with the list of languages for LLM messages, with English selected by default. 
+			6) "LLM Language" drop down with the list of languages for LLM messages, with English selected by default.
+			7) "Extract source title" checkbox, turned on by default (or restored from the last launch).
+			8) "Extract source snippet" checkbox, turned on by default (or restored from the last launch).
 		iii. A status bar at the bottom of the app window with the text: "Click a link > add it to AI Chat. Ctrl+Click > open in the external web browser."
 2. Choose Search Engine
 	a. User clicked on the "Search Engine" drop-down.
@@ -40,7 +42,7 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 	c. The browser's navigation is intercepted and cancelled. User has stayed on the SERP.
 	d. The clicked link is parsed to extract the native URL of the target web page.
 		i. If parsing out native link is impossible then the link is opened in the background via a system network call in order to resolve the native link from the internet.
-	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the source: {native URL}\nSource Title: \"{title from SERP}\"\nSource Snippet: \"{snippet from SERP}\"\n".
+	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box. The block always starts with "\nUse the source: {native URL}\n". If "Extract source title" is on, a line "Source Title: \"{title from SERP}\"\n" is added. If "Extract source snippet" is on and a snippet is present on the SERP, a line "Source Snippet: \"{snippet from SERP}\"\n" is added. If a toggle is off, that line is omitted.
 7. Open Link In External Browser
 	a. User clicked any link in the Search Engine web browser while having his Ctrl button pressed.
 	b. It is opened in the operating system's default external web browser.
@@ -77,3 +79,13 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 	a. Prerequisites: the right panel is folded as described in the use case "14. Fold Right Panel".
 	b. User clicked the unfold-right chevron on the splitter.
 	c. Both web-browsers are visible again at the previous splitter width.
+16. Toggle Extract Source Title
+	a. User clicked the "Extract source title" checkbox in the toolbar.
+	b. The checkbox turns on or off.
+	c. The chosen state is saved and restored the next time the app is launched.
+	d. The next execution of the use case "6. Extract SERP Link to AI Chat" includes or omits the source title line accordingly.
+17. Toggle Extract Source Snippet
+	a. User clicked the "Extract source snippet" checkbox in the toolbar.
+	b. The checkbox turns on or off.
+	c. The chosen state is saved and restored the next time the app is launched.
+	d. The next execution of the use case "6. Extract SERP Link to AI Chat" includes or omits the source snippet line accordingly.

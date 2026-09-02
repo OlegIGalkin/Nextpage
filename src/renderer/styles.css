@@ -44,6 +44,21 @@ body,
   font-size: 13px;
 }
 
+.toolbar-field input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.toolbar-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toolbar-toggles .toolbar-field {
+  white-space: nowrap;
+}
+
 select,
 button {
   font: inherit;
