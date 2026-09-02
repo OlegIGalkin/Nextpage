@@ -7,6 +7,15 @@ const SELECTORS = [
   '[contenteditable="true"]'
 ]
 
+export function focusPerplexityComposer(): boolean {
+  const el = findVisibleEditors(SELECTORS)
+  if (!el) {
+    return false
+  }
+  el.focus()
+  return true
+}
+
 export function insertPerplexity(text: string): boolean {
   const el = findVisibleEditors(SELECTORS)
   if (el && appendToComposer(el, text)) {

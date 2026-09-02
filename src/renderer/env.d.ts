@@ -23,6 +23,11 @@ declare global {
     partition: string
     useragent: string
     send(channel: string, ...args: unknown[]): void
+    sendInputEvent(event: {
+      type: 'mouseDown' | 'mouseUp' | 'mouseEnter' | 'mouseLeave' | 'contextMenu' | 'mouseWheel' | 'mouseMove' | 'keyDown' | 'keyUp' | 'char'
+      keyCode?: string
+      modifiers?: string[]
+    }): void
     addEventListener(
       type: 'ipc-message',
       listener: (event: IpcMessageEvent) => void,

@@ -163,9 +163,54 @@ function shouldIngest(key: string): boolean {
   return true
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function sendShiftEnter(view: WebviewTag): void {
+  const event = { keyCode: 'Return', modifiers: ['shift'] }
+  view.sendInputEvent({ type: 'keyDown', ...event })
+  view.sendInputEvent({ type: 'char', ...event })
+  view.sendInputEvent({ type: 'keyUp', ...event })
+}
+
+async function armPerplexityComposer(): Promise<void> {
+  try {
+    await invokeGuest<boolean>(chatView, 'focus-composer')
+  } catch {
+    // Guest page may not be ready; still send Shift+Enter in case the composer already has focus.
+  }
+  chatView.focus()
+  sendShiftEnter(chatView)
+  await delay(50)
+}
+
+async function insertIntoPerplexity(text: string): Promise<void> {
+  await armPerplexityComposer()
+  const lines = text.split('\n')
+  if (lines[0] === '') {
+    lines.shift()
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (line) {
+      await invokeGuest<boolean>(chatView, 'insert-text', { text: line })
+    }
+    if (i < lines.length - 1) {
+      chatView.focus()
+      sendShiftEnter(chatView)
+      await delay(50)
+    }
+  }
+}
+
 async function insertIntoChat(text: string): Promise<void> {
   if (!text) return
   try {
+    if (chatSelect.value === 'perplexity') {
+      await insertIntoPerplexity(text)
+      return
+    }
     await invokeGuest<boolean>(chatView, 'insert-text', { text })
   } catch (error) {
     console.error('Failed to insert into AI Chat', error)
