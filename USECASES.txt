@@ -28,7 +28,7 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 	b. User sees the list of AI chat providers:
 		i. Deep Seek
 		ii. Perplexity
-		iii. Open AI
+		iii. ChatGPT
 	c. User has chosen a AI chat provider from the list.
 	d. The use case "5. Open AI Chat" has been executed.
 5. Open AI Chat

@@ -19,7 +19,7 @@ export const SEARCH_ENGINES: SearchEngine[] = [
 export const AI_CHATS: AiChat[] = [
   { id: 'deepseek', name: 'Deep Seek', url: 'https://chat.deepseek.com' },
   { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai' },
-  { id: 'openai', name: 'Open AI', url: 'https://chatgpt.com' }
+  { id: 'openai', name: 'ChatGPT', url: 'https://chatgpt.com' }
 ]
 
 export const DEFAULT_SEARCH_ENGINE = SEARCH_ENGINES[0]
