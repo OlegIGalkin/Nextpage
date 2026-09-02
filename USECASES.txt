@@ -40,7 +40,7 @@ I want you to develop a cross-platform desktop app based on the Electron platfor
 	c. The browser's navigation is intercepted and cancelled. User has stayed on the SERP.
 	d. The clicked link is parsed to extract the native URL of the target web page.
 		i. If parsing out native link is impossible then the link is opened in the background via a system network call in order to resolve the native link from the internet.
-	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the following source: {native URL}\nSource Title: \"{title from SERP}\"\nSource Snippet: \"{snippet from SERP}\"\n".
+	e. The native link is inserted into the AI chat message input box opened in the AI Chat browser - it is appended to the text already existing in the box, in the format: "\nUse the source: {native URL}\nSource Title: \"{title from SERP}\"\nSource Snippet: \"{snippet from SERP}\"\n".
 7. Open Link In External Browser
 	a. User clicked any link in the Search Engine web browser while having his Ctrl button pressed.
 	b. It is opened in the operating system's default external web browser.
