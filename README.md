@@ -6,6 +6,8 @@ AI chat answers are a small window: a few links, a confident summary, and no nex
 
 The model does not pick the sources. You do.
 
+![Nextpage](Nextpage.gif)
+
 ## How to use
 
 1. Search on the left as you would in a normal browser, including later result pages.
