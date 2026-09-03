@@ -8,6 +8,8 @@ The model does not pick the sources. You do.
 
 ![Nextpage](Nextpage.gif)
 
+![Nextpage](Nextpage_01.gif)
+
 ## How to use
 
 1. Search on the left as you would in a normal browser, including later result pages.
