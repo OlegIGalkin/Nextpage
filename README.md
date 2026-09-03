@@ -1,6 +1,6 @@
 # Nextpage
 
-Split-pane search + AI chat. Click a result to add it as a source; you stay on the results page.
+Cross-platform desktop app (Electron) for split-pane search + AI chat. Click a result to add it as a source; you stay on the results page.
 
 AI chat answers are a small window: a few links, a confident summary, and no next page. Search still has one. Nextpage keeps Google, Bing, or Yandex open beside DeepSeek, ChatGPT, or Perplexity so you can page through live results and feed the chat the URLs, titles, and snippets the model never opened.
 
