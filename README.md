@@ -30,6 +30,12 @@ Toolbar:
 
 Redirect URLs from the search engine are resolved to the real page URL before they are inserted.
 
+**Google login will not function within the app**, as Google has blocked OAuth requests from embedded browsers (such as Electron, Android WebView, iOS WKWebView, and CEF) since 2021.  
+
+To work around this, you can either:  
+- Log in using an email and password (the simplest option), or  
+- Log in through a regular Chrome browser, then copy the session cookies into the app’s persistent storage partition (`persist:ai-chat`).
+
 ## What it isn’t
 
 - Not a new model and not a hosted search API.
